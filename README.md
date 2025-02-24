@@ -224,3 +224,9 @@ GRANT ALL PRIVILEGES ON $DBNAME.* TO '$USERNAME'@'localhost';
 ```sh
 FLUSH PRIVILEGES;
 ```
+
+بعد از انجام دادن کار و خروج از محیط دیتابیس از  دستور زیر استفاده کنید
+
+```sh
+exit;
+```
