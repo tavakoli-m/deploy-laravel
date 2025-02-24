@@ -122,7 +122,7 @@ sudo apt install software-properties-common gnupg2 apt-transport-https lsb-relea
 
 sudo add-apt-repository ppa:ondrej/php
 
-sudo apt install php8.4 php8.4-cli
+sudo apt install php8.4 php8.4-cli -y
 ```
 برای برسی نصب درست php دستور زیر رو وارد کنید تا چک کنید ورژن درست نصب شده یا خیر
 
