@@ -100,3 +100,13 @@ sudo ufw allow https
 ```sh
 sudo apt install sshguard
 ```
+
+### نصب وب سرور NGINX
+
+```sh
+sudo apt install nginx -y
+
+sudo systemctl enable nginx
+```
+
+
