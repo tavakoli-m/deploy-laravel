@@ -160,3 +160,67 @@ sudo mv composer.phar /usr/local/bin/composer
 ```sh
 composer -V
 ```
+
+### نصب MySql 
+
+```sh
+sudo apt install mysql-server -y
+
+sudo systemctl enable mysql
+```
+
+برای افزایش امنیت دیتابیس MySql پکیج زیر رو نصب نید به ترتیب گزینه هاش رو مثل شکل زیر بزنید
+
+```sh
+sudo mysql_secure_installation
+```
+
+```sh
+1 => y
+
+2 => 2
+
+3 => y
+
+4 => y
+
+5 => y
+
+6 => y
+```
+
+بعدش برای وصل شدن به دیتابیس دستور زیر رو بزنید
+
+```sh
+sudo mysql
+```
+
+بعدش رمز کاربری کاربر root دیتابیس رو عوض کنید, بجای $PASSWORD رمز عبور خودتون رو بزارید
+
+```sh
+ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '$PASSWORD';
+```
+
+بعد یه دیتابیس جدید بسازید, دقت کنید بجای $DBNAME باید اسم دیتابیس رو بزارید
+
+```sh
+CREATE DATABASE $DBNAME;
+```
+
+بعدش یه کاربر جدید بسازید, دقت کنید بجای $USERNAME باید نام کاربر رو بزارید و بجای $PASSWORD باید رمز عبور کاربر رو بزارید
+
+```sh
+CREATE USER '$USERNAME'@'localhost' IDENTIFIED BY '$PASSWORD';
+```
+
+بعدش تمام دسترسی های دیتابیس رو به اون کاربر بدید
+
+```sh
+GRANT ALL PRIVILEGES ON $DBNAME.* TO '$USERNAME'@'localhost';
+```
+
+و بعدش دستور زیر رو وارد کنید تا همه تغیرات اعمال بشن
+
+```sh
+FLUSH PRIVILEGES;
+```
