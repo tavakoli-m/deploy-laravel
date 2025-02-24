@@ -169,7 +169,7 @@ sudo apt install mysql-server -y
 sudo systemctl enable mysql
 ```
 
-برای افزایش امنیت دیتابیس MySql پکیج زیر رو نصب نید به ترتیب گزینه هاش رو مثل شکل زیر بزنید
+برای افزایش امنیت دیتابیس MySql پکیج زیر رو نصب کنید به ترتیب گزینه هاش رو مثل شکل زیر بزنید
 
 ```sh
 sudo mysql_secure_installation
