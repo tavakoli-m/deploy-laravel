@@ -109,4 +109,8 @@ sudo apt install nginx -y
 sudo systemctl enable nginx
 ```
 
+### نصب ورژن کنترلر GIT
 
+```sh
+sudo apt install  git -y
+```
