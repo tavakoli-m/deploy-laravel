@@ -114,3 +114,30 @@ sudo systemctl enable nginx
 ```sh
 sudo apt install  git -y
 ```
+
+### نصب PHP 8.4 روی سرور
+
+```sh
+sudo apt install software-properties-common gnupg2 apt-transport-https lsb-release ca-certificates -y
+
+sudo add-apt-repository ppa:ondrej/php
+
+sudo apt install php8.4 php8.4-cli
+```
+برای برسی نصب درست php دستور زیر رو وارد کنید تا چک کنید ورژن درست نصب شده یا خیر
+
+```sh
+php --version
+```
+
+برای نصب ماژول های پرکاربر php که معمولا روی سرور ها نصب میشن از دستور زیر استفاده کنید
+
+```sh
+sudo apt install php8.4-common php8.4-fpm php8.4-mysql php8.4-xml \
+php8.4-gd php8.4-mbstring php8.4-zip php8.4-bcmath php8.4-curl php8.4-redis -y
+```
+برای راه  اندازی خودکار PHP FPM موقع بوت سرور دستور زیر رو اجرا کنید
+
+```sh
+sudo systemctl enable php8.4-fpm
+```
