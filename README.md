@@ -230,3 +230,88 @@ FLUSH PRIVILEGES;
 ```sh
 exit;
 ```
+
+### انتقال پروژه به سرور
+
+اول پروژه خوتون رو داخل یه ریپو خصوصی پوش کنید
+
+بعدش دستور زیر رو وارد کنید تا یک کلید ssh براتون ساخته بشه دقت کنید بجای $EMAIL باید ایمیل خودتون رو قرار بدید
+
+
+```sh
+Syntax:- ssh-keygen -t ed25519 -C "@EMAIL"
+Example:- ssh-keygen -t ed25519 -C "mail@gmail.com"
+```
+
+بعدش دستور زیر رو وارد کنید
+
+```sh
+cat ~/.ssh/id_ed25519.pub
+```
+
+دستور بالا بهتون یه خروجی میده کل اون خروجی رو کپی کنید و برید داخل ریپو گیت هاب بعدش داخل تنظیمات بعدش از منو سمت چپ گزینه ***Deploy keys*** رو انتخاب کنید روی گزینه Add کلیک کنید و یه عنوان براش انتخاب کنید مهم نیست چی باشه و به عنوان کلیدش اون مقداری که از سرور کپی کردید رو قرار بدید و کلید رو اضافه کنید
+
+وارد مسیر ***/var/www*** داخل سرورتون بشید و مالکیت اون رو عوض کنید با دستور زیر
+
+```sh
+cd /var/www
+
+sudo chown $USER:$USER .
+```
+
+الان با استفاده از ***SSH*** پروژه رو کلون کنید دقت کنید بجای $URL باید ادرس ریپو خصوصی گیت هاب رو قرار بدید
+
+
+```sh
+Syntax:- git clone $URL
+
+Example:- git clone git@github.com:tavakoli-m/deploy-laravel.git
+```
+
+الان وارد پروژه تون بشید و پکیج های برنامه رو نصب کنید
+
+```sh
+cd deploy-laravel
+
+sudo composer install --no-dev
+```
+
+الان فایل کافینگ پروژه رو کپی کنید 
+
+```sh
+cp .env.example .env
+```
+
+کلید برنامه رو ست کنید
+
+```sh
+sudo php artisan key:generate
+```
+
+برای مجوز های پروژه دستور های زیر رو به ترتیب ران کنید
+
+```sh
+sudo chown -R www-data:www-data storage
+
+sudo chown -R www-data:www-data bootstrap/cache
+
+sudo usermod -a -G www-data $USER
+
+sudo find storage -type f -exec chmod 644 {} \;
+
+sudo find storage -type d -exec chmod 775 {} \;
+```
+
+الان وارد ***.env*** بشید و کافیگ های خودتون مثل دیتابیس و ... رو ست کنید
+
+با دستور زیر جداول رو بسازید
+
+```sh
+php artisan migrate
+```
+
+لینک کنید storage رو public 
+
+```sh
+php artisan storage:link
+```
