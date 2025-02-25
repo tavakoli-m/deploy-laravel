@@ -302,7 +302,25 @@ sudo find storage -type f -exec chmod 644 {} \;
 sudo find storage -type d -exec chmod 775 {} \;
 ```
 
-الان وارد ***.env*** بشید و کافیگ های خودتون مثل دیتابیس و ... رو ست کنید
+الان وارد ***.env*** بشید و کافیگ های خودتون مثل دیتابیس و ... رو ست کنید یه نمونه کافینگ ابتدایی روز این زیر براتون میزارم
+
+```sh
+APP_NAME=Laravel
+APP_ENV=production
+APP_KEY=run php_artisan_key:generate
+APP_DEBUG=false
+APP_URL=http://your-domain.com/
+
+LOG_CHANNEL=stack
+LOG_LEVEL=debug
+
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=$DBNAME
+DB_USERNAME=$USERNAME
+DB_PASSWORD=$PASSWORD
+```
 
 با دستور زیر جداول رو بسازید
 
