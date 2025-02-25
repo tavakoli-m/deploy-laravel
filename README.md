@@ -426,3 +426,44 @@ sudo ln -s /etc/nginx/sites-available/$YOUR_DOMIAN /etc/nginx/sites-enabled/
 git pull
 ```
 کد بالا میاد تمام تغیرات رو میگیره و داخل سورس پروژه قرار میده ولی شما خودتون باید بیاید دستور های مثل اجرا مایگرشن ها یا نصب وابستگی فرانت و بکند رو اجرا کنید که کار خیلی حوصله سر بر و حساسی هست چون ممکنه مشکلاتی رو برای پروژه به وجود بیاره اگر بخاید دستی اجراش کنید در ادامه نحوه راه اندازی استقرار خودکار رو بهتون میگم
+
+### اجرای سیستم صف (Queue) لاراول
+
+برای راه اندازی سیستم صف لاراول نیاز به یک ابزاری داریم به اسم supervisor تا صف های ما درحالت اجرا بمونن برای نصب این ابزار ابتدا دستور زیر رو وارد کنید
+
+```sh
+sudo apt install supervisor
+```
+
+بعدش یه فایل داخل فولدر ***conf.d*** در مسیر ***/etc/supervisor/conf.d*** دارید تا تون رو پیکربندی کنید
+
+```sh
+sudo nano /etc/supervisor/conf.d/laravel-worker.conf
+```
+
+و داخلش این کانفیگ رو قرار بدید
+
+```sh
+[program:laravel-worker]
+process_name=%(program_name)s_%(process_num)02d
+command=php /var/www/$PROJECT_FOLDERt/artisan queue:work --sleep=3 --tries=3 --max-time=3600
+autostart=true
+autorestart=true
+stopasgroup=true
+killasgroup=true
+user=www-data
+numprocs=8
+redirect_stderr=true
+stdout_logfile=/var/www/$PROJECT_FOLDERt/storage/logs/larave-queue-worker.log
+stopwaitsecs=3600
+```
+
+بعدش برای راه اندازی سیستم صف دستور های زیر رو به ترتیب اجرا کنید
+
+```sh
+sudo supervisorctl reread
+ 
+sudo supervisorctl update
+ 
+sudo supervisorctl start "laravel-worker:*"
+```
