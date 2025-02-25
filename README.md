@@ -315,3 +315,38 @@ php artisan migrate
 ```sh
 php artisan storage:link
 ```
+
+
+### تنظیمات NGINX برای Laravel
+
+برای اجرای برنامه باید NGINX رو کافیگ کنید تا پروژه اماده استفاده بشه
+
+یه فایل داخل پوشه /etc/nginx/sites-available بسازید و فایل های کانفیگ زیر رو داخلش قرار بدید البته بجای $YOUR_DOMIAN باید اسم دامین خودتون رو بزارید
+
+```sh
+Syntax:- sudo nano /etc/nginx/sites-available/$YOUR_DOMIAN$
+Example:- sudo nano /etc/nginx/sites-available/mohammadrezatavakoli.ir
+```
+
+بعدش کافیگ زیر رو وارد کنید
+
+البته بجای $PROJECT_FOLDER نام فولدر پروژه خودتون و قرار بدید و بجای $YOUR_DOMIAN نام دامنه خودتون رو
+
+
+```sh
+server{
+    listen 80;
+    listen [::]:80;
+    server_name $YOUR_DOMIAN;
+    root /var/www/$PROJECT_FOLDER/public;
+    index index.php index.html;
+    location / {
+         try_files $uri $uri/ /index.php$is_args$args;
+    }
+    location ~ \.php$ {
+        fastcgi_pass unix:/run/php/php8.4-fpm.sock;
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+    }
+}
+```
