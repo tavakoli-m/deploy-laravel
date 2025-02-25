@@ -161,6 +161,31 @@ sudo mv composer.phar /usr/local/bin/composer
 composer -V
 ```
 
+### نصب NodeJS
+برای نصب NodeJs دستور های زیر رو به ترتیب اجرا کنید
+```sh
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+
+\. "$HOME/.nvm/nvm.sh"
+
+nvm install 22
+
+node -v
+
+
+nvm current
+
+npm -v
+```
+
+بعد از اینکه NodeJs با موفقیت نصب شد دستور های زیر رو بزنید تا از نصب موفق اطمینان پیدا کنید
+
+```sh
+node -v #Should print "v22.14.0"
+npm -v #Should print "10.9.2".
+```
+
+
 ### نصب MySql 
 
 ```sh
@@ -326,6 +351,15 @@ DB_PASSWORD=$PASSWORD
 
 ```sh
 php artisan migrate
+```
+
+### نصب وابستگی های فرانت
+برای نصب وابستگی های فرانت پروژه با استفاده از NodeJs دستور های زیر رو به ترتیب اجرا کنید
+
+```sh
+npm install --production
+
+npm run build
 ```
 
 لینک کنید storage رو public 
