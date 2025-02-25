@@ -454,7 +454,7 @@ killasgroup=true
 user=www-data
 numprocs=8
 redirect_stderr=true
-stdout_logfile=/var/www/$PROJECT_FOLDERt/storage/logs/larave-queue-worker.log
+stdout_logfile=/var/www/$PROJECT_FOLDER/storage/logs/larave-queue-worker.log
 stopwaitsecs=3600
 ```
 
