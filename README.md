@@ -369,6 +369,11 @@ server{
 }
 ```
 
+بعد از اینکه این تنظیمات رو قرار داد با استفاده از دستور زیر فایل رو لینک کنید تا فعال بشه سایت براتون
+
+```sh
+sudo ln -s /etc/nginx/sites-available/$YOUR_DOMIAN /etc/nginx/sites-enabled/
+```
 
 ### ست کردن DNS برای دامنه
 
