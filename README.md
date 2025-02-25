@@ -354,9 +354,8 @@ server{
 
 ### ست کردن DNS برای دامنه
 
+وارد DNS Provider خودتون بشید و رکورد های به شکل زیر بسازید
+
 | Type | Host/Name | Value |
 | :---: | :---: | :--- |
 | A     | @     | Your Remote Server IP |
-| A     | www   | Your Remote Server IP |
-| AAAA  | @     | Your Remote Server IPv6 |
-| AAAA  | www   | Your Remote Server IPv6 |
