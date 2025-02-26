@@ -298,7 +298,7 @@ Example:- git clone git@github.com:tavakoli-m/deploy-laravel.git
 ```sh
 cd deploy-laravel
 
-sudo composer install --no-dev
+composer install --no-dev
 ```
 
 الان فایل کافینگ پروژه رو کپی کنید 
@@ -310,7 +310,7 @@ cp .env.example .env
 کلید برنامه رو ست کنید
 
 ```sh
-sudo php artisan key:generate
+php artisan key:generate
 ```
 
 برای مجوز های پروژه دستور های زیر رو به ترتیب ران کنید
@@ -357,7 +357,7 @@ php artisan migrate
 برای نصب وابستگی های فرانت پروژه با استفاده از NodeJs دستور های زیر رو به ترتیب اجرا کنید
 
 ```sh
-npm install --production
+npm install --omit=dev
 
 npm run build
 ```
