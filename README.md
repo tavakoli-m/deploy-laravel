@@ -485,3 +485,143 @@ crontab -e
 ```sh
 * * * * * cd /var/www/$PROJECT_FOLDER && php artisan schedule:run >> /var/www/$PROJECT_FOLDER/storage/logs/schedule.log 2>&1
 ```
+
+### راه اندازی استقرار خودکار
+
+برای راه اندازی استقرار خودکار چند تا کار ساده باید انجام بدید 
+
+اولیش اینه که داخل روت اصلی پروژه تون یه فولدر بسازید به اسم ***.scripts*** بعدش داخلش یه فایل درست کنید به اسم ***deploy.sh*** و دستورات زیر رو داخلش قرار بدید
+دقت کنید به جای ***$USERNAME*** باید اسم کاربری که خودتون برای سیستم ساختید رو بدید بهش (توی تول مستندات اسمش رو admin گزاشتیم برای مثال)
+
+```sh
+#!/bin/bash
+set -e
+
+echo "Deployment Started ..."
+
+# Turn ON Maintenance Mode or return true
+# if already is in maintenance mode
+(php artisan down) || true
+
+# Pull the latest version of the app
+git pull origin main
+
+# Install composer dependencies
+composer install --no-dev
+
+export PATH=$PATH:/usr/local/bin:/home/$USERNAME/.nvm/versions/node/v22.14.0/bin
+
+# Install npm dependencies
+npm install --omit=dev
+
+npm run build
+
+# Clearing Cache
+php artisan cache:clear
+php artisan config:clear
+
+# Recreate cache
+php artisan optimize
+
+# Run database migrations
+php artisan migrate --force
+
+# Restart Queue Workers
+
+php artisan queue:restart
+
+# Turn OFF Maintenance mode
+php artisan up
+
+echo "Deployment Finished!"
+```
+
+بعدش  داخل ترمینال داخل سیستم لوکال خودتون دستور های زیر رو به ترتیب اجرا کنید 
+
+```sh
+cd ./.scripts 
+
+git update-index --add --chmod=+x deploy.sh
+```
+
+قدم بعدی باید داخل روت پروژه یه فولدر بسازید به اسم ***.github*** و بعدش داخل اون هم یه فولدر بسازید به اسم ***workflows*** و بعدش هم داخل اون یه فایل درست کنید به اسم ***deploy.yml*** و دستورات زیر رو داخلش قرار بدید
+دقت کنید بجای $PROJECT_FOLDER باید نام فولدر پروژه تون داخل سرور قرار بگیره
+
+```yml
+name: Deploy
+
+# Trigger the workflow on push and
+# pull request events on the master branch
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+# Authenticate to the the server via ssh
+# and run our deployment script
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Deploy to Server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          port: ${{ secrets.PORT }}
+          key: ${{ secrets.SSHKEY }}
+          script: "cd /var/www/$PROJECT_FOLDER && ./.scripts/deploy.sh"
+```
+
+بعدش برید داخل ریپو پروژه و وارد بخش تنظیمات بشید از منو سمت چپ گزینه ***Secrets and Variables*** رو انتخاب کنید و بعدش وارد ***Actions*** بشید داخل بخش های ***Secrets*** چند کلید ست کنید به عناوین زیر
+
+```sh
+Name: HOST
+Secret: Your_Server_IP
+```
+
+دقت کنید ***$PORT*** همون پورتی باشه که برای SSH توی اول اموزش ست کردید
+```sh
+Name: PORT
+Secret: $PORT
+```
+
+
+دقت کنید ***$USERNAME*** باید نام کاربری همون یوزری باشه که ساختید
+
+```sh
+Name: USERNAME
+Secret: $USERNAME
+```
+
+
+الان باید کلید خصوصی SSH رو توی این ست کنید برای دریافت کلید خصوصی که ساختیم باید دستور زیر رو اجرا کنید داخل سرورتون و بعدش خروجی رو به طور کامل پی و داخل این ست کنید
+
+```sh
+cat ~/.ssh/id_ed25519
+```
+
+دستور بالا بتون یه کلید میده کل اون رو کپی کنید به به کلیدی به شکل زیر ست کنید
+
+```sh
+Name: SSHKEY
+Secret: your_ssh_key
+```
+
+الان فایل کلید عمومی رو باز کنید و کلید رو کپی کنید  داخل کلید های اجازه داده شده اضافه کنید
+
+```sh
+cat ~/.ssh/id_ed25519.pub
+
+sudo nano  ~/.ssh/authorized_keys
+```
+
+
+تغیرات رو از داخل لوکال به داخل ریپو گیت هاب پوش کنید
+
+و بعدش برای اخرین بار وارد سرورتون بشید و تغیرات رو به دستور ***git pull*** از ریپو دریافت کنید و دیگ کار تموم الان با پوش کردن هر تغیر داخل ریپو خوکار کد سرور شما هم اپدیت میشه و در اختیاز کاربرها قرار میگیره  دقت کنید اگر که pull request داخل گیت هاب ساخته بشه و اون مرج بشه با برنچ اصلی بازم کد های شما به صورت خودکار دیپلوی میشن 
+شما نتیجه این استقرار هارو میتونید داخل ریپو پروژه داخل صفحه ***Actions*** ببینید
+
+خب دیگ تموم شد الان وارد دامنه خوتون بشید و سایت رو چک کنید
