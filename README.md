@@ -357,7 +357,7 @@ php artisan migrate
 برای نصب وابستگی های فرانت پروژه با استفاده از NodeJs دستور های زیر رو به ترتیب اجرا کنید
 
 ```sh
-npm install --omit=dev
+npm ci
 
 npm run build
 ```
