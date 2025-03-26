@@ -137,6 +137,19 @@ sudo apt install php8.4 php8.4-cli -y
 php --version
 ```
 
+دستور های بالا خیلی راحت php رو واسمون نصب میکنن ولی یه مشکلی دارن اونم اینه که وب سرور apache رو هم نصب میکنن که خوب ما نیاز نداریم بهش و ما از nginx استفاده میکنیم پس با دستور های زیر میتونیم اون رو حذف کنیم
+
+```sh
+sudo systemctl stop apache2
+
+sudo systemctl disable apache2
+
+sudo apt purge apache2 apache2-utils apache2-bin apache2.2-common -y
+
+sudo apt autoremove -y
+```
+
+
 برای نصب ماژول های پرکاربر php که معمولا روی سرور ها نصب میشن از دستور زیر استفاده کنید
 
 ```sh
