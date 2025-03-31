@@ -517,89 +517,79 @@ crontab -e
 
 برای راه اندازی استقرار خودکار چند تا کار ساده باید انجام بدید
 
-اولیش اینه که داخل روت اصلی پروژه تون یه فولدر بسازید به اسم **_.scripts_** بعدش داخلش یه فایل درست کنید به اسم **_deploy.sh_** و دستورات زیر رو داخلش قرار بدید
-دقت کنید به جای **_$USERNAME_** باید اسم کاربری که خودتون برای سیستم ساختید رو بدید بهش (توی تول مستندات اسمش رو admin گزاشتیم برای مثال)
 
-```sh
-#!/bin/bash
-set -e
-
-echo "Deployment Started ..."
-
-# Turn ON Maintenance Mode or return true
-# if already is in maintenance mode
-(php artisan down) || true
-
-# Pull the latest version of the app
-git pull origin main
-
-# Install composer dependencies
-composer install --no-dev
-
-export PATH=$PATH:/usr/local/bin:/home/$USERNAME/.nvm/versions/node/v22.14.0/bin
-
-# Install npm dependencies
-npm install --omit=dev
-
-npm run build
-
-# Clearing Cache
-php artisan cache:clear
-php artisan config:clear
-
-# Recreate cache
-php artisan optimize
-
-# Run database migrations
-php artisan migrate --force
-
-# Restart Queue Workers
-
-php artisan queue:restart
-
-# Turn OFF Maintenance mode
-php artisan up
-
-echo "Deployment Finished!"
-```
-
-بعدش داخل ترمینال داخل سیستم لوکال خودتون دستور های زیر رو به ترتیب اجرا کنید
-
-```sh
-cd ./.scripts
-
-git update-index --add --chmod=+x deploy.sh
-```
-
-قدم بعدی باید داخل روت پروژه یه فولدر بسازید به اسم **_.github_** و بعدش داخل اون هم یه فولدر بسازید به اسم **_workflows_** و بعدش هم داخل اون یه فایل درست کنید به اسم **_deploy.yml_** و دستورات زیر رو داخلش قرار بدید
-دقت کنید بجای $PROJECT_FOLDER باید نام فولدر پروژه تون داخل سرور قرار بگیره
+قدم بعدی باید داخل روت پروژه یه فولدر بسازید به اسم **_.github_** و بعدش داخل اون هم یه فولدر بسازید به اسم **_workflows_** و بعدش هم داخل اون یه فایل درست کنید به اسم **_deployment.yml_** و دستورات زیر رو داخلش قرار بدید و به جای $USERNAME نام کاربر که خودتون ساختید رو قرار بدید
 
 ```yml
-name: Deploy
+name: Build & Test & Deployment
 
-# Trigger the workflow on push and
-# pull request events on the master branch
 on:
   push:
-    branches: ["main"]
-  pull_request:
-    branches: ["main"]
+    branches:
+      - main
 
-# Authenticate to the the server via ssh
-# and run our deployment script
+
 jobs:
-  deploy:
+  CI:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Deploy to Server
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+
+      - name: Install Composer Dependencies
+        run: composer install --no-progress --prefer-dist --optimize-autoloader
+
+      - name: Copy .env
+        run: cp .env.example .env
+
+      - name: Set Application Key
+        run: php artisan key:generate
+        
+      - name: Install Front Dependencies
+        run: npm ci
+                
+      - name: Build Front Dependencies
+        run: npm run build
+  
+      - name: Init Sqlite
+        run: touch database/database.sqlite
+
+      - name: Migrate Database
+        run: php artisan migrate --force
+
+      - name: Run Laravel Tests
+        run: php artisan test
+  CD:
+    needs: CI
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to Production Server
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           port: ${{ secrets.PORT }}
           key: ${{ secrets.SSHKEY }}
-          script: "cd /var/www/$PROJECT_FOLDER && ./.scripts/deploy.sh"
+          script: |
+            cd ${{ secrets.PROJECT_PATH }}
+            (php artisan down) || true
+            git pull origin main
+            composer install --no-dev --optimize-autoloader
+            export PATH=$PATH:/usr/local/bin:/home/$USERNAME/.nvm/versions/node/v22.14.0/bin
+            npm ci
+            npm run build
+            php artisan cache:clear
+            php artisan config:clear
+            php artisan route:clear
+            php artisan view:clear
+            php artisan migrate --force
+            php artisan queue:restart
+            php artisan up
 ```
 
 بعدش برید داخل ریپو پروژه و وارد بخش تنظیمات بشید از منو سمت چپ گزینه **_Secrets and Variables_** رو انتخاب کنید و بعدش وارد **_Actions_** بشید داخل بخش های **_Secrets_** چند کلید ست کنید به عناوین زیر
@@ -621,6 +611,13 @@ Secret: $PORT
 ```sh
 Name: USERNAME
 Secret: $USERNAME
+```
+
+دقت کنید **_$PROJECT_PATH_** باید مسیری باشه که توی سرور پروژه رو توی اون قرار دادید
+
+```sh
+Name: PROJECT_PATH
+Secret: $PROJECT_PATH
 ```
 
 الان باید کلید خصوصی SSH رو توی این ست کنید برای دریافت کلید خصوصی که ساختیم باید دستور زیر رو اجرا کنید داخل سرورتون و بعدش خروجی رو به طور کامل پی و داخل این ست کنید
