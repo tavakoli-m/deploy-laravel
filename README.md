@@ -592,6 +592,57 @@ jobs:
             php artisan up
 ```
 
+ورک فلو بالا میاد برای ما پایپ لاین CI/CD رو راه اندازی میکنه و فقط زمانی اجرا میشه که کامیت روی برنچ main بشه یا برنچی از طریق pull request با برنچ main مرج بشه
+
+خب بیاید یه ورک فلو بسازیم که هر موقع درخواستی اومد که یه برنچ با برنچ main مرج بشه (همون pull request) بیاد کد های اون برنچ رو چک بکنه که مشکلی با کد های اصلی پروژه نداشته باشه
+
+برای انجام این کار در کنار **_deployment.yml_** یه فایل درست کنید به اسم **_pull_requests.yml_** و کد های زیر رو رو داخلش قرار بدید
+
+```yml
+name: Check Pull Request
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  CI:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+
+      - name: Install Composer Dependencies
+        run: composer install --no-progress --prefer-dist --optimize-autoloader
+
+      - name: Copy .env
+        run: cp .env.example .env
+
+      - name: Set Application Key
+        run: php artisan key:generate
+        
+      - name: Install Front Dependencies
+        run: npm ci
+                
+      - name: Build Front Dependencies
+        run: npm run build
+  
+      - name: Init Sqlite
+        run: touch database/database.sqlite
+
+      - name: Migrate Database
+        run: php artisan migrate --force
+
+      - name: Run Laravel Tests
+        run: php artisan test
+```
+
 بعدش برید داخل ریپو پروژه و وارد بخش تنظیمات بشید از منو سمت چپ گزینه **_Secrets and Variables_** رو انتخاب کنید و بعدش وارد **_Actions_** بشید داخل بخش های **_Secrets_** چند کلید ست کنید به عناوین زیر
 
 ```sh
