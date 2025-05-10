@@ -195,7 +195,6 @@ nvm install 22
 
 node -v
 
-
 nvm current
 
 npm -v
