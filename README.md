@@ -472,7 +472,7 @@ sudo nano /etc/supervisor/conf.d/laravel-worker.conf
 ```sh
 [program:laravel-worker]
 process_name=%(program_name)s_%(process_num)02d
-command=php /var/www/$PROJECT_FOLDERt/artisan queue:work --sleep=3 --tries=3 --max-time=3600
+command=php /var/www/$PROJECT_FOLDER/artisan queue:work --sleep=3 --tries=3 --max-time=3600
 autostart=true
 autorestart=true
 stopasgroup=true
